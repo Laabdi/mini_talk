@@ -3,50 +3,49 @@
 /*                                                        :::      ::::::::   */
 /*   server.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moaregra <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: moaregra <moaregra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 13:44:11 by moaregra          #+#    #+#             */
-/*   Updated: 2024/04/03 13:44:12 by moaregra         ###   ########.fr       */
+/*   Updated: 2024/04/03 14:08:49 by moaregra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	bit_writer(int bit_recieved)
+void	handle_signal(int signalmsg)
 {
-	static int	bit;
-	static int	set;
+	static int	bit_counter;
+	static char	character;
 
-	bit = 7;
-	set = 0;
-	set += (bit_recieved << bit);
-	if (bit == 0)
+	if (SIGUSR1 == signalmsg)
 	{
-		printf("%c", set);
-		bit = 7;
-		set = 0;
+		bit_counter++;
+		character <<= 1;
+		character |= 1;
 	}
-	else
-		bit--;
+	else if (SIGUSR2 == signalmsg)
+	{
+		bit_counter++;
+		character <<= 1;
+	}
+	if (bit_counter == 8)
+	{
+		ft_printf("%c", character);
+		bit_counter = 0;
+		character = 0;
+	}
 }
 
-void	bit_handler(int bit_recieved)
-{
-	if (bit_recieved == SIGUSR1)
-		bit_writer(1);
-	else
-		bit_writer(0);
-}
 
 int	main(void)
 {
 	int	nb;
 
 	nb = getpid();
-	printf("server PID ----->%u\n", nb);
-	signal(SIGUSR1, bit_handler);
-	signal(SIGUSR2, bit_handler);
-	printf("signal sent by the client ----->");
+	ft_printf("server PID ----->%u\n", nb);
+	signal(SIGUSR1, handle_signal);
+	signal(SIGUSR2, handle_signal);
+	ft_printf("signal sent by the client ----->");
 	while (1)
 		pause();
 }

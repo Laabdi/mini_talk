@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moaregra <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: moaregra <moaregra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 13:39:22 by moaregra          #+#    #+#             */
-/*   Updated: 2024/04/03 13:39:24 by moaregra         ###   ########.fr       */
+/*   Updated: 2024/04/03 19:42:31 by moaregra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	ft_atoi(char *str)
 
 void	send_string(char *str, pid_t pid)
 {
-	int				bits;
+	int	bits;
 	unsigned char	c;
 
 	while (*str)
@@ -48,7 +48,7 @@ void	send_string(char *str, pid_t pid)
 		c = *str++;
 		while (bits >= 0)
 		{
-			if ((c >> bits) & 1)
+			if ((c >>(unsigned char) bits) & 1)
 				kill(pid, SIGUSR1);
 			else
 				kill(pid, SIGUSR2);
@@ -67,14 +67,14 @@ int	main(int ac, char *av[])
 		pid = ft_atoi(av[1]);
 		if (pid <= 0)
 		{
-			printf("invalid PID");
+			ft_printf("invalid PID");
 			return (1);
 		}
 		else
 			send_string(av[2], pid);
-		printf("string was sent");
+		ft_printf("string was sent");
 		return (0);
 	}
-	printf("Invalid input");
+	ft_printf("Invalid input");
 	return (0);
 }
