@@ -1,42 +1,58 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: moaregra <moaregra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/03 13:39:22 by moaregra          #+#    #+#             */
-/*   Updated: 2024/04/07 20:50:17 by moaregra         ###   ########.fr       */
+/*   Created: 2024/04/07 20:56:16 by moaregra          #+#    #+#             */
+/*   Updated: 2024/04/07 21:35:09 by moaregra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "includes/minitalk.h"
+#include "includes/minitalk_bonus.h"
 
-static void	send_string(pid_t pid, char *str)
+static void	action(int sig)
 {
-	int				bits;
-	unsigned char	c;
+	static int	received;
+
+	if (sig == SIGUSR1)
+	{
+		++received;
+	}
+	else
+	{
+		ft_putnbr_fd(received, 1);
+		ft_putchar_fd('\n', 1);
+		exit(0);
+	}
+}
+
+static void	send_signal(int pid, char *str)
+{
+	int		i;
+	char	c;
 
 	while (*str)
 	{
-		bits = 7;
+		i = 7;
 		c = *str++;
-		while (bits >= 0)
+		while (i >= 0)
 		{
-			if (c >> bits & 1)
+			if (c >> i & 1)
 				kill(pid, SIGUSR2);
 			else
 				kill(pid, SIGUSR1);
 			usleep(300);
-			bits--;
+			i--;
 		}
 	}
-	bits = 7;
-	while (bits >= 0)
+	i = 7;
+	while (i >= 0)
 	{
 		kill(pid, SIGUSR1);
 		usleep(300);
-		bits--;
+		i--;
 	}
 }
 
@@ -46,6 +62,14 @@ int	main(int argc, char **argv)
 		return (1);
 	if ((kill(ft_atoi(argv[1]), 0) != 0) || (ft_atoi(argv[1]) <= 0))
 		return (ft_putstr_fd("PID NOT VALID", 1), 0);
-	send_string(ft_atoi(argv[1]), argv[2]);
+	ft_putstr_fd("Sent    : ", 1);
+	ft_putnbr_fd(ft_strlen(argv[2]), 1);
+	ft_putchar_fd('\n', 1);
+	ft_putstr_fd("Received: ", 1);
+	signal(SIGUSR1, action);
+	signal(SIGUSR2, action);
+	send_signal(ft_atoi(argv[1]), argv[2]);
+	while (1)
+		pause();
 	return (0);
 }
